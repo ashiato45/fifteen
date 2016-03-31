@@ -1,6 +1,7 @@
 final int PIXEL_CHIP = 64;
 final int MARGIN_CHIP = 3;
 final int ROUND_CHIP = 7;
+final int SHUFFLE = 10000;
 int size = 4;
 int[][] board = new int[size][size];
 Piece[] pieces = new Piece[size*size - 1];
@@ -81,6 +82,8 @@ void setup(){
   }
   board[size - 1][size - 1] = 0;
   
+  shuffleBoard();
+  
   test(1);
 }
 
@@ -132,6 +135,15 @@ void mouseClicked(){
   flagClicked = true;
 }
 
+void shuffleBoard(){
+  for(int i=0; i < SHUFFLE; i++){
+    int r = int(random(size*size));
+    int x = r / size;
+    int y = r % size;
+    movePiece(x, y);
+  }
+}
+
 void draw(){
   /* update */
   for(Piece p: pieces){
@@ -150,6 +162,8 @@ void draw(){
   
 
 }
+
+
 
 void test(int n_){
   switch(n_){
