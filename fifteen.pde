@@ -2,6 +2,9 @@ final int PIXEL_CHIP = 64;
 final int MARGIN_CHIP = 3;
 final int ROUND_CHIP = 7;
 final int SHUFFLE = 10000;
+final int TEXTSIZE_CHIP = 12;
+final int TEXTSIZE_CONGRATS = 50;
+
 int size = 4;
 int[][] board = new int[size][size];
 Piece[] pieces = new Piece[size*size - 1];
@@ -45,7 +48,7 @@ class Piece{
       ROUND_CHIP);
     /* Draw numbers */
     fill(0, 0, 0);
-    textSize(12);
+    textSize(TEXTSIZE_CHIP);
     textAlign(CENTER, CENTER);
     text(str(number),
       x*PIXEL_CHIP + PIXEL_CHIP/2,
@@ -83,8 +86,6 @@ void setup(){
   board[size - 1][size - 1] = 0;
   
   shuffleBoard();
-  
-  test(1);
 }
 
 void rearrangePieces(){
@@ -107,6 +108,7 @@ void drawPieces(){
 }
 
 void swapPieces(int x1, int y1, int x2, int y2){
+  println(x1, y1, 111);
   int temp = board[x1][y1];
   board[x1][y1] = board[x2][y2];
   board[x2][y2] = temp;
@@ -123,6 +125,7 @@ boolean movePiece(int x, int y){
     if(0 <= x + dx && x + dx < size
       && 0 <= y + dy && y + dy < size){
       if(board[x + dx][y + dy] == 0){
+        println(111, x, y, x+dx, y+dy);
         swapPieces(x, y, x + dx, y + dy);
         return true;
       }
@@ -140,15 +143,29 @@ void shuffleBoard(){
     int r = int(random(size*size));
     int x = r / size;
     int y = r % size;
+    println(x,y);
     movePiece(x, y);
   }
+}
+
+boolean isComplete(){
+  for(int x=0; x < size; x++){
+    for(int y=0; y < size; y++){
+      if(board[x][y] != 0){
+        if(x + y*size + 1 != board[x][y]){
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 void draw(){
   /* update */
   for(Piece p: pieces){
     if(p.isClicked()){
-      movePiece(p.x, p.y);
+      movePiece(p.x, p.y); //<>//
       break;
     }
   }
@@ -159,6 +176,12 @@ void draw(){
   /* draw */
   background(200, 200, 255);
   drawPieces();
+  
+  if(isComplete()){
+    fill(255, 30, 67);
+    textSize(TEXTSIZE_CONGRATS);
+    text("Congrats!", width/2, height/2);
+  }
   
 
 }
