@@ -4,6 +4,7 @@ final int ROUND_CHIP = 7;
 int size = 4;
 int[][] board = new int[size][size];
 Piece[] pieces = new Piece[size*size - 1];
+boolean flagClicked = false; 
 
 class Piece{
   int number;
@@ -16,12 +17,28 @@ class Piece{
     y = y_;
   }
   
+  int getLeft(){
+    return x*PIXEL_CHIP + MARGIN_CHIP;
+  }
+  
+  int getTop(){
+    return y*PIXEL_CHIP + MARGIN_CHIP;
+  }
+  
+  int getRight(){
+    return (x + 1)*PIXEL_CHIP - MARGIN_CHIP;
+  }
+  
+  int getBottom(){
+    return (y + 1)*PIXEL_CHIP - MARGIN_CHIP;
+  }
+  
   void draw(){
     /* Draw the piece */
     stroke(0, 0, 0);
     fill(255, 255, 255);
-    rect(x*PIXEL_CHIP + MARGIN_CHIP,
-      y*PIXEL_CHIP + MARGIN_CHIP,
+    rect(getLeft(),
+      getTop(),
       PIXEL_CHIP - MARGIN_CHIP*2,
       PIXEL_CHIP - MARGIN_CHIP*2,
       ROUND_CHIP);
@@ -32,6 +49,17 @@ class Piece{
     text(str(number),
       x*PIXEL_CHIP + PIXEL_CHIP/2,
       y*PIXEL_CHIP + PIXEL_CHIP/2);
+  }
+  
+  boolean isClicked(){
+    if(flagClicked){
+      if(getLeft() <= mouseX && mouseX <= getRight()
+        && getTop() <= mouseY && mouseY <= getBottom()){
+        println(number, x, y);
+        return true;
+      }
+    }
+    return false;
   }
 }
 
@@ -75,15 +103,52 @@ void drawPieces(){
   }
 }
 
-void swapChips(int x1, int y1, int x2, int y2){
+void swapPieces(int x1, int y1, int x2, int y2){
   int temp = board[x1][y1];
   board[x1][y1] = board[x2][y2];
   board[x2][y2] = temp;
 }
 
+
+
+boolean movePiece(int x, int y){
+  int[] dxs = {0, 1, 0, -1};
+  int[] dys = {1, 0, -1, 0};
+  for(int i=0; i < 4; i++){
+    int dx = dxs[i];
+    int dy = dys[i];
+    if(0 <= x + dx && x + dx < size
+      && 0 <= y + dy && y + dy < size){
+      if(board[x + dx][y + dy] == 0){
+        swapPieces(x, y, x + dx, y + dy);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+void mouseClicked(){
+  flagClicked = true;
+}
+
 void draw(){
+  /* update */
+  for(Piece p: pieces){
+    if(p.isClicked()){
+      movePiece(p.x, p.y);
+      break;
+    }
+  }
+  
   rearrangePieces();
+  flagClicked = false;
+  
+  /* draw */
+  background(200, 200, 255);
   drawPieces();
+  
+
 }
 
 void test(int n_){
@@ -95,7 +160,7 @@ void test(int n_){
       q.draw();
       break;
     case 1:
-      swapChips(1, 3, 2, 3);
+      swapPieces(1, 3, 2, 3);
       break;
   }
 }
